@@ -23,5 +23,7 @@ def create_user(user: user_schema.UserCreate, db: Session = Depends(get_db)):
     db.refresh(new_user)
     
     login_user = auth_schema.Login(email=new_user.email, password=pwd)
+    print(new_user.email, pwd)
+    print(login_user)
     
-    login(login_user, db)
+    return login(login_user, db)
