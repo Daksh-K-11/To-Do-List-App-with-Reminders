@@ -20,18 +20,17 @@ def login(user_credential: auth_schema.Login, db: Session = Depends(get_db)):
     if not utils.verify(user_credential.password, user.password):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Incorrect password")
     
-    access_token = oauth2.create_access_token(data={"id": user.id, "email": user.email[:5]})
+    access_token = oauth2.create_access_token(data={"user_id": user.id})
     
     return {"access_token": access_token, "token_type": "bearer"}
 
 
 @router.patch('/', status_code=status.HTTP_202_ACCEPTED)
 def change_password(pwd_change: auth_schema.ChangePassword, db: Session=Depends(get_db), current_user=Depends(get_current_user)):
-    
-    if not utils.verify(pwd_change.old_password, current_user.password):
+    if not utils.verify(pwd_change.current_password, current_user.password):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Incorrect old password")
     
-    current_user.password = hash(pwd_change.new_password)
+    current_user.password = utils.get_password_hash(pwd_change.new_password)
     db.commit()
     db.refresh(current_user)
     

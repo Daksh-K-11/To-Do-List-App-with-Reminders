@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from ..database import get_db
 from ..models import User
 from ..schemas import auth_schema, user_schema
-from ..utils import hash
+from ..utils import get_password_hash
 from .auth import login
 
 router = APIRouter(prefix="/user", tags=["User"])
@@ -14,7 +14,7 @@ def create_user(user: user_schema.UserCreate, db: Session = Depends(get_db)):
     if db.query(User).filter(User.email == user.email).first():
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
     pwd = user.password                   # stored so that the entered pwd can be sent in login
-    user.password = hash(user.password)
+    user.password = get_password_hash(user.password)
     
     new_user = User(**user.model_dump())
     

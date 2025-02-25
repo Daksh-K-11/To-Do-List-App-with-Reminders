@@ -8,10 +8,10 @@ def get_current_user(token: str = Depends(oauth2.oauth2_scheme), db: Session=Dep
                                           detail=f"Could not validate credentials",
                                           headers={"WWW-Authenticate": "Bearer"})
     
-    token = oauth2.verify_access_token(token, credentials_exception)
+    t = oauth2.verify_access_token(token, credentials_exception)
     
-    user = db.query(models.User).filter(models.User.id == token.id).first()
-    
+    user = db.query(models.User).filter(models.User.id == t.id).first()
+    print("User attributes:", dir(user))
     return user
 
 def seller_required(current_user: models.User = Depends(get_current_user)):
